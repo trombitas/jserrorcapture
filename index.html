@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>JSErrorCapture</title>
+		
+		<script type="text/javascript">
+			var errors = [
+				"x.x = 1;",
+				"z = t;",
+				"x = 5;x();",
+				"throw new TypeError('This is a Typerror', 'index.html', 10);",
+				"throw new SyntaxError('This is a SyntaxError', 'index.html', 20);",
+				"throw new ReferenceError('This is a ReferenceError', 'index.html', 30);",
+				"throw new RangeError ('This is a RangeError ', 'index.html', 40);",
+				"throw new URIError ('This is a URIError ', 'index.html', 50);",
+				"throw new EvalError ('This is an EvalError ', 'index.html', 60);"
+			];
+			
+			function pickError() {
+				var index = Math.floor(Math.random() * errors.length); 
+				
+				if (errors[index]) {
+					//console.log(errors[index]);
+					eval(errors[index]);
+				}
+			}
+		</script>
+	</head>
+	<body style="padding:50px">
+		
+		<h1>Welcome to the error generation tool</h1>
+
+		<button onclick="pickError()">Produce an error</button>
+		
+	<script type="text/javascript" src="error-capture.js"></script>
+	</body>
+</html>
