@@ -27,9 +27,6 @@ window.jsErrorCapture = (function(window) {
 		if (this.options.captureErrors) {
 			this.addErrorEvent(this.handleError);
 		}
-		
-		//Load JSON parser
-		if (!window.JSON) { loadJSONParser(); }
 	};
 		
 	//When an error occurs this function is called
@@ -42,20 +39,24 @@ window.jsErrorCapture = (function(window) {
 				message: errorObj.message,
 				filename: errorObj.filename,
 				lineNumber: errorObj.lineno,
-				colNumber: errorObj.colno,
-				timestamp: errorObj.timestamp || (new Date()).getTime()
+				colNumber: errorObj.colno
 			},
 			data: collectBrowserData()
 		});
 		
-		//Start the timer
-		if (!this.timeout) {
-			this.timeout = window.setTimeout(bind(this, this.log), this.options.logErrorsTimeout);
+		//The number of errors has reached the maximum value
+		if (this.errorCount === this.options.logErrorsCount) {
+			this.log();
 		} else {
-			//If a new error has been found clear the timeout and start a new one again
-			window.clearTimeout(this.timeout);
-			this.timeout = window.setTimeout(bind(this, this.log), this.options.logErrorsTimeout);
-		}
+			//Start the timer
+			if (!this.timeout) {
+				this.timeout = window.setTimeout(bind(this, this.log), this.options.logErrorsTimeout);
+			} else {
+				//If a new error has been found clear the timeout and start a new one again
+				window.clearTimeout(this.timeout);
+				this.timeout = window.setTimeout(bind(this, this.log), this.options.logErrorsTimeout);
+			}
+		}	
 	};
 	
 	//Send the error package
@@ -91,8 +92,12 @@ window.jsErrorCapture = (function(window) {
             url: this.options.sendErrorsViaAjax.url,
             crossDomain: this.options.sendErrorsViaAjax.crossDomain,
             data: { errors: this.errors },
-            success: JsErrorCapture.ajaxSuccess,
-            error: JsErrorCapture.ajaxError
+            success: function(response) {
+				console.log("Ajax success!"/*, response*/);
+			},
+            error: function(error) {
+				console.log("Ajax error!");
+			}
         });
 	};
 	
@@ -166,23 +171,15 @@ window.jsErrorCapture = (function(window) {
 		};
 	};
 	
-	JsErrorCapture.ajaxSuccess = function(response) {
-		console.log("Ajax request Success");
-	};
-	
-	JsErrorCapture.ajaxError = function(response) {
-		console.log("Ajax request Error");
-	};
-	
 	//Helper function for making AJAX calls
 	//@param options {Object} required options: { type [POST, GET], url, data [Object], success [function], error [function] }
 	var ajax = function(options) {
 		var data = serialize(options.data);
 		
-		//If crossDomain make a JSONP call
+		//If crossDomain make a ajaxCORS call
         if (options.crossDomain) {
-            jsonp(options.url + '?callback=JsErrorCapture.ajaxSuccess&' + data, {
-                callbackName: 'JsErrorCapture.ajaxSuccess',
+            ajaxCORS(options.url + '?callback=jsErrorCaptureAjaxSuccess&' + data, {
+                callbackName: 'jsErrorCaptureAjaxSuccess',
                 onSuccess: options.success,
                 onTimeout: options.error,
                 timeout: 5
@@ -251,8 +248,8 @@ window.jsErrorCapture = (function(window) {
 		}
 	};
 
-    //JSONP
-    var jsonp = function(src, options) {
+    //JSONP - Cross Origin Calls
+    var ajaxCORS = function(src, options) {
 		var callback_name = options.callbackName || 'callback',
 			on_success = options.onSuccess || function(){},
 			on_timeout = options.onTimeout || function(){},
@@ -262,7 +259,7 @@ window.jsErrorCapture = (function(window) {
 			on_timeout();
 		}, timeout * 1000);
 
-		window[callback_name] = function(data){
+		window[callback_name] = function(data) {
 			window.clearTimeout(timeout_trigger);
 			on_success(data);
 		};
@@ -315,17 +312,6 @@ window.jsErrorCapture = (function(window) {
 		return str.join("&");
 	}
 	
-	//Load JSON parse if not defined already in the browser
-	var loadJSONParser = function() {
-		var json2;
-		
-		json2 = document.createElement("script");
-		json2.type = "text/javascript";
-		json2.src = "https://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.min.js";
-		
-		return document.getElementsByTagName("head")[0].appendChild(json2);
-    };
-	
 	return JsErrorCapture;
 
 })(window);
@@ -334,10 +320,10 @@ window.jsErrorCapture = (function(window) {
 	var jsec = new jsErrorCapture({
 		sendErrorsViaAjax: {
 			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
-			crossDomain: true
+			crossDomain: false
 		},
-		logErrorsTimeout: 1000,
-		logErrorsCount: 2
+		logErrorsTimeout: 5000,
+		logErrorsCount: 3
 	});
 //} catch(e) {
 //	console && console.log && console.log("An error occurred when initializing JSErrorCapture: ", e.message);

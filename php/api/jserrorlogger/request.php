@@ -10,6 +10,6 @@
 	}
 	
     echo isset($_GET['callback'])
-        ? "{$_GET['callback']}(null)"
+        ? "{$_GET['callback']}()"
         : null;
 ?>
