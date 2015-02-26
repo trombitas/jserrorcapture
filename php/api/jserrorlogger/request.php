@@ -2,7 +2,7 @@
     header('content-type: application/json; charset=utf-8');
 	
 	if (isset($_POST)) {
-		//print_r($_POST);
+		print_r($_POST);
 	}
 	
     echo isset($_GET['callback'])

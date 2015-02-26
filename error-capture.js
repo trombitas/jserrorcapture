@@ -8,8 +8,8 @@ window.jsErrorCapture = (function(window) {
 			sendErrorsViaAjax: {
 				crossDomain: false     //Send the errors to different domain
 			},
-			logErrorsTimeout: 1000,   //When an error is captured wait a bit to see whether others would join in the package (milliseconds)
-			logErrorsCount: 3,        //Send a package if the number of errors captured within the Timeout reaches this number
+			logErrorsTimeout: 5000,   //When an error is captured wait a bit to see whether others would join in the package (milliseconds)
+			logErrorsCount: 1,        //Send a package if the number of errors captured within the Timeout reaches this number
 			maxLogsCount: -1          //The number of logs to send: -1 = infinite
 		}, options);
 		
@@ -93,7 +93,7 @@ window.jsErrorCapture = (function(window) {
             crossDomain: this.options.sendErrorsViaAjax.crossDomain,
             data: { errors: this.errors },
             success: function (result) {
-                console.log("Ajax request succeeded: ", result);
+                console.log("Ajax request succeeded: ");
             },
             error: function (error) {
                 console.log("Error occurred in the AJAX request!");
@@ -170,13 +170,10 @@ window.jsErrorCapture = (function(window) {
                                 null
 		};
 	};
-
+	
 	//Helper function for making AJAX calls
 	//@param options {Object} required options: { type [POST, GET], url, data [Object], success [function], error [function] }
 	var ajax = function(options) {
-	    var data = JSON.stringify(options.data);
-		
-		console.log(data);
 		//If crossDomain make a JSONP call
         if (options.crossDomain) {
             jsonp(options.url + '?callback=jsonpCallback', {
@@ -189,6 +186,7 @@ window.jsErrorCapture = (function(window) {
         }
 
         var xhr;
+		
 		//Create the main xmlHTTPRequest object
 		try { xhr = _createXHR(); } catch(e) {}
 		
@@ -210,8 +208,7 @@ window.jsErrorCapture = (function(window) {
 		
 		try { xhr.withCredentials = false; } catch(e) {};
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.setRequestHeader('Content-type', 'application/json');
-        //xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 		
 		xhr.onload = function (e) { 
 			_handleResponse('load')(_is_iexplorer() ? e : e.target); 
@@ -219,7 +216,7 @@ window.jsErrorCapture = (function(window) {
 	    xhr.onerror = function (e) { 
 			_handleResponse('error')(_is_iexplorer() ? e : e.target);
 		};
-	    xhr.send(data);
+	    xhr.send(serialize(options.data));
 		
 		function _handleResponse(eventType) {
 			return function (XHRobj) {
@@ -302,6 +299,18 @@ window.jsErrorCapture = (function(window) {
 		return destObj;
 	};
 	
+	//Serializes an array/object into a query string
+	var serialize = function(obj, prefix) {
+		var str = [];
+		for (var p in obj) {
+			if (obj.hasOwnProperty(p)) {
+				var k = prefix ? prefix + "[" + p + "]" : p, v = obj[p];
+				str.push(typeof v == "object" ? serialize(v, k) : encodeURIComponent(k) + "=" + encodeURIComponent(v));
+			}
+		}
+		return str.join("&");
+	}
+	
 	//Load JSON parse if not defined already in the browser
 	var loadJSONParser = function() {
 		var json2;
@@ -320,8 +329,11 @@ window.jsErrorCapture = (function(window) {
 //try {
 	var jsec = new jsErrorCapture({
 		sendErrorsViaAjax: {
-			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php'
-		}
+			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
+			crossDomain: false
+		},
+		logErrorsTimeout: 1000,
+		logErrorsCount: 2
 	});
 //} catch(e) {
 //	console && console.log && console.log("An error occurred when initializing JSErrorCapture: ", e.message);
