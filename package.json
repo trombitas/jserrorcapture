@@ -1,0 +1,28 @@
+{
+  "name": "jserrorcapture",
+  "version": "0.0.1",
+  "description": "JS Error Capture - Capture and log Javascript errors",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trombitas/jserrorcapture.git"
+  },
+  "keywords": [
+    "javascript",
+    "error"
+  ],
+  "author": "Dynamix",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trombitas/jserrorcapture/issues"
+  },
+  "homepage": "https://github.com/trombitas/jserrorcapture",
+  "dependencies": {
+    "express": "^4.12.0",
+    "body-parser": "^1.12.0",
+    "connect": "^3.3.4"
+  }
+}
