@@ -80,7 +80,6 @@ window.jsErrorCapture = (function(window) {
 	//Send the errors
 	JsErrorCapture.prototype.sendErrors = function() {
 		if (this.options.sendErrorsViaAjax && this.options.sendErrorsViaAjax.url) {
-			console.log("Sending the errors: ", this.errors);
 			this.sendErrorsViaAjax();
 		}
 	};
@@ -92,12 +91,8 @@ window.jsErrorCapture = (function(window) {
             url: this.options.sendErrorsViaAjax.url,
             crossDomain: this.options.sendErrorsViaAjax.crossDomain,
             data: { errors: this.errors },
-            success: function (result) {
-                console.log("Ajax request succeeded: ");
-            },
-            error: function (error) {
-                console.log("Error occurred in the AJAX request!");
-            }
+            success: JsErrorCapture.ajaxSuccess,
+            error: JsErrorCapture.ajaxError
         });
 	};
 	
@@ -171,13 +166,23 @@ window.jsErrorCapture = (function(window) {
 		};
 	};
 	
+	JsErrorCapture.ajaxSuccess = function(response) {
+		console.log("Ajax request Success");
+	};
+	
+	JsErrorCapture.ajaxError = function(response) {
+		console.log("Ajax request Error");
+	};
+	
 	//Helper function for making AJAX calls
 	//@param options {Object} required options: { type [POST, GET], url, data [Object], success [function], error [function] }
 	var ajax = function(options) {
+		var data = serialize(options.data);
+		
 		//If crossDomain make a JSONP call
         if (options.crossDomain) {
-            jsonp(options.url + '?callback=jsonpCallback', {
-                callbackName: 'jsonpCallback',
+            jsonp(options.url + '?callback=JsErrorCapture.ajaxSuccess&' + data, {
+                callbackName: 'JsErrorCapture.ajaxSuccess',
                 onSuccess: options.success,
                 onTimeout: options.error,
                 timeout: 5
@@ -216,7 +221,7 @@ window.jsErrorCapture = (function(window) {
 	    xhr.onerror = function (e) { 
 			_handleResponse('error')(_is_iexplorer() ? e : e.target);
 		};
-	    xhr.send(serialize(options.data));
+	    xhr.send(data);
 		
 		function _handleResponse(eventType) {
 			return function (XHRobj) {
@@ -248,28 +253,27 @@ window.jsErrorCapture = (function(window) {
 
     //JSONP
     var jsonp = function(src, options) {
-            var callback_name = options.callbackName || 'callback',
-                on_success = options.onSuccess || function(){},
-                on_timeout = options.onTimeout || function(){},
-                timeout = options.timeout || 10; // sec
+		var callback_name = options.callbackName || 'callback',
+			on_success = options.onSuccess || function(){},
+			on_timeout = options.onTimeout || function(){},
+			timeout = options.timeout || 10; // sec
 
-            var timeout_trigger = window.setTimeout(function(){
-                JsErrorCapture[jsonpCallback] = function(){};
-                on_timeout();
-            }, timeout * 1000);
+		var timeout_trigger = window.setTimeout(function(){
+			on_timeout();
+		}, timeout * 1000);
 
-            window[callback_name] = function(data){
-                window.clearTimeout(timeout_trigger);
-                on_success(data);
-            };
+		window[callback_name] = function(data){
+			window.clearTimeout(timeout_trigger);
+			on_success(data);
+		};
 
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.async = true;
-            script.src = src;
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.async = true;
+		script.src = src;
 
-            document.getElementsByTagName('head')[0].appendChild(script);
-        };
+		document.getElementsByTagName('head')[0].appendChild(script);
+	};
 	
 	//Creates a function having context as this binded
 	var bind = function(context, fn) {
@@ -330,7 +334,7 @@ window.jsErrorCapture = (function(window) {
 	var jsec = new jsErrorCapture({
 		sendErrorsViaAjax: {
 			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
-			crossDomain: false
+			crossDomain: true
 		},
 		logErrorsTimeout: 1000,
 		logErrorsCount: 2
