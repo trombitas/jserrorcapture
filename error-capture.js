@@ -5,9 +5,10 @@ window.jsErrorCapture = (function(window) {
 	var JsErrorCapture = function(options) {
 		this.options = copy({
 			captureErrors: true,      //Capture errors (if set to false the tool does not do anything)
-            crossDomain: true,        //Send the errors to different domain
-            ajaxUrl: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
-			logErrorsTimeout: 3000,   //When an error is captured wait a bit to see whether others would join in the package (milliseconds)
+			sendErrorsViaAjax: {
+				crossDomain: false     //Send the errors to different domain
+			},
+			logErrorsTimeout: 1000,   //When an error is captured wait a bit to see whether others would join in the package (milliseconds)
 			logErrorsCount: 3,        //Send a package if the number of errors captured within the Timeout reaches this number
 			maxLogsCount: -1          //The number of logs to send: -1 = infinite
 		}, options);
@@ -26,6 +27,9 @@ window.jsErrorCapture = (function(window) {
 		if (this.options.captureErrors) {
 			this.addErrorEvent(this.handleError);
 		}
+		
+		//Load JSON parser
+		if (!window.JSON) { loadJSONParser(); }
 	};
 		
 	//When an error occurs this function is called
@@ -34,7 +38,13 @@ window.jsErrorCapture = (function(window) {
 		this.errorCount++;
 		//Save the error
 		this.errors.push({
-			error: errorObj,
+			error: {
+				message: errorObj.message,
+				filename: errorObj.filename,
+				lineNumber: errorObj.lineno,
+				colNumber: errorObj.colno,
+				timestamp: errorObj.timestamp || (new Date()).getTime()
+			},
 			data: collectBrowserData()
 		});
 		
@@ -67,13 +77,20 @@ window.jsErrorCapture = (function(window) {
 		} 		
 	};
 	
-	//Send the errors via AJAX
+	//Send the errors
 	JsErrorCapture.prototype.sendErrors = function() {
-        console.log("Sending the errors: ", this.errors);
-        ajax({
+		if (this.options.sendErrorsViaAjax && this.options.sendErrorsViaAjax.url) {
+			console.log("Sending the errors: ", this.errors);
+			this.sendErrorsViaAjax();
+		}
+	};
+	
+	//Send errors via AJAX
+	JsErrorCapture.prototype.sendErrorsViaAjax = function() {
+		ajax({
             type: "POST",
-            url: this.options.ajaxUrl,
-            crossDomain: this.options.crossDomain,
+            url: this.options.sendErrorsViaAjax.url,
+            crossDomain: this.options.sendErrorsViaAjax.crossDomain,
             data: { errors: this.errors },
             success: function (result) {
                 console.log("Ajax request succeeded: ", result);
@@ -120,11 +137,13 @@ window.jsErrorCapture = (function(window) {
 		var originalOnError = window.onerror;
 		window.onerror = function(errorMsg, url, lineNumber, columnNumber, errorObject) {
 			var errorObj = {
-				errorMsg: errorMsg,
-				url: url,
-				lineNumber: lineNumber, 
-				columnNumber: columnNumber,
-				errorObject: errorObject
+				message: errorMsg,
+				filename: url,
+				lineno: lineNumber, 
+				colno: columnNumber,
+				timestamp: (new Date()).getTime(),
+				target: url
+				//errorObject: errorObject
 			};
 			
 			bind(self, callback).call(this, errorObj);
@@ -155,8 +174,11 @@ window.jsErrorCapture = (function(window) {
 	//Helper function for making AJAX calls
 	//@param options {Object} required options: { type [POST, GET], url, data [Object], success [function], error [function] }
 	var ajax = function(options) {
-        console.log(options.data);
-        if(options.crossDomain) {
+	    var data = JSON.stringify(options.data);
+		
+		console.log(data);
+		//If crossDomain make a JSONP call
+        if (options.crossDomain) {
             jsonp(options.url + '?callback=jsonpCallback', {
                 callbackName: 'jsonpCallback',
                 onSuccess: options.success,
@@ -167,7 +189,6 @@ window.jsErrorCapture = (function(window) {
         }
 
         var xhr;
-
 		//Create the main xmlHTTPRequest object
 		try { xhr = _createXHR(); } catch(e) {}
 		
@@ -190,6 +211,7 @@ window.jsErrorCapture = (function(window) {
 		try { xhr.withCredentials = false; } catch(e) {};
 		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.setRequestHeader('Content-type', 'application/json');
+        //xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 		
 		xhr.onload = function (e) { 
 			_handleResponse('load')(_is_iexplorer() ? e : e.target); 
@@ -197,7 +219,7 @@ window.jsErrorCapture = (function(window) {
 	    xhr.onerror = function (e) { 
 			_handleResponse('error')(_is_iexplorer() ? e : e.target);
 		};
-	    xhr.send(options.data);
+	    xhr.send(data);
 		
 		function _handleResponse(eventType) {
 			return function (XHRobj) {
@@ -265,19 +287,42 @@ window.jsErrorCapture = (function(window) {
 		
 		if (srcObj) {
 			for (var attr in srcObj) {
-				if (srcObj.hasOwnProperty(attr)) destObj[attr] = srcObj[attr];
+				if (srcObj.hasOwnProperty(attr)) {
+					//Nested object literals
+					if (Object.prototype.toString.call(srcObj[attr]) === "[object Object]") {
+						copy(destObj[attr], srcObj[attr]);
+					} else {
+						//Primitive value
+						destObj[attr] = srcObj[attr];
+					}	
+				}	
 			}
 		}
 		
 		return destObj;
 	};
 	
+	//Load JSON parse if not defined already in the browser
+	var loadJSONParser = function() {
+		var json2;
+		
+		json2 = document.createElement("script");
+		json2.type = "text/javascript";
+		json2.src = "https://cdnjs.cloudflare.com/ajax/libs/json2/20140204/json2.min.js";
+		
+		return document.getElementsByTagName("head")[0].appendChild(json2);
+    };
+	
 	return JsErrorCapture;
 
 })(window);
 
 //try {
-	var jsec = new jsErrorCapture();
+	var jsec = new jsErrorCapture({
+		sendErrorsViaAjax: {
+			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php'
+		}
+	});
 //} catch(e) {
 //	console && console.log && console.log("An error occurred when initializing JSErrorCapture: ", e.message);
 //};	
