@@ -1,10 +1,10 @@
 window.jsErrorCapture = (function(window) {
+	'use strict';
 	
 	//Constructor
-	JsErrorCapture = function(options) {
+	var JsErrorCapture = function(options) {
 		this.options = copy({
 			captureErrors: true,      //Capture errors (if set to false the tool does not do anything)
-			logErrorsViaAjax: true,   //Send the errors via ajax or ....
             crossDomain: true,        //Send the errors to different domain
             ajaxUrl: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
 			logErrorsTimeout: 3000,   //When an error is captured wait a bit to see whether others would join in the package (milliseconds)
@@ -33,7 +33,10 @@ window.jsErrorCapture = (function(window) {
 		//Increment the error counter 
 		this.errorCount++;
 		//Save the error
-		this.errors.push(errorObj);
+		this.errors.push({
+			error: errorObj,
+			data: collectBrowserData()
+		});
 		
 		//Start the timer
 		if (!this.timeout) {
@@ -50,9 +53,7 @@ window.jsErrorCapture = (function(window) {
 		//Check if the the maxLogsCount has been reached
 		if (this.options.maxLogsCount === -1 || (this.logsCount < this.options.maxLogsCount && this.errors.length)) {
 			//Send the errors
-			if (this.options.logErrorsViaAjax) {
-				this.sendErrorsViaAjax();
-			}
+			this.sendErrors();
 			
 			//Reset counters
 			this.errors = [];
@@ -67,19 +68,20 @@ window.jsErrorCapture = (function(window) {
 	};
 	
 	//Send the errors via AJAX
-	JsErrorCapture.prototype.sendErrorsViaAjax = function() {
-        if (this.options.crossDomain) {
-            $jsonp.send(this.options.ajaxUrl + '?callback=test', {
-                callbackName: 'test',
-                onSuccess: function(json){
-                    console.log('success!', json);
-                },
-                onTimeout: function(){
-                    console.log('timeout!');
-                },
-                timeout: 5
-            });
-        }
+	JsErrorCapture.prototype.sendErrors = function() {
+        console.log("Sending the errors: ", this.errors);
+        ajax({
+            type: "POST",
+            url: this.options.ajaxUrl,
+            crossDomain: this.options.crossDomain,
+            data: { errors: this.errors },
+            success: function (result) {
+                console.log("Ajax request succeeded: ", result);
+            },
+            error: function (error) {
+                console.log("Error occurred in the AJAX request!");
+            }
+        });
 	};
 	
 	JsErrorCapture.prototype.addErrorEvent = function(callback) {
@@ -130,54 +132,110 @@ window.jsErrorCapture = (function(window) {
 		};
 	};
 	
-	JsErrorCapture.prototype.collectBrowserData = function() {
+	//Collect data from the current browser/platform
+	var collectBrowserData = function() {
 		return {
-			location: window.location,//protocol, hostname, etc. (http://www.w3schools.com/jsref/obj_location.asp)
-			userAgent: window.navigator, //appName, appCodeName, appVersion etc. (http://www.w3schools.com/jsref/obj_navigator.asp)
-			platform: window.navigator.platform, //win32 for Windows
-			browserResolution: getBrowserData("resolution"),
-			browserOrientation: getBrowserData("orientation")
+			time: (new Date()).getTime(),
+			browser: window.navigator.userAgent,
+			platform: window.navigator.platform,
+			language: window.navigator.language,
+			browserResolution: {
+				width: screen.width,
+				availWidth: screen.availWidth,
+				height: screen.height,
+				availHeight: screen.availHeight
+			},
+			browserOrientation: 'orientation' in screen ? screen.orientation :
+                                'mozOrientation' in screen ? screen.mozOrientation :
+                                'msOrientation'  in screen ? screen.msOrientation :
+                                null
 		};
 	};
-	
+
 	//Helper function for making AJAX calls
-	var ajax = function() {
+	//@param options {Object} required options: { type [POST, GET], url, data [Object], success [function], error [function] }
+	var ajax = function(options) {
+        console.log(options.data);
+        if(options.crossDomain) {
+            jsonp(options.url + '?callback=jsonpCallback', {
+                callbackName: 'jsonpCallback',
+                onSuccess: options.success,
+                onTimeout: options.error,
+                timeout: 5
+            });
+            return;
+        }
+
+        var xhr;
+
+		//Create the main xmlHTTPRequest object
+		try { xhr = _createXHR(); } catch(e) {}
+		
+		if (window.location.protocol.replace(":", "") !== "https" && xhr && "withCredentials" in xhr){
+			xhr.open(options.type, options.url, true);
+		} else if (window.location.protocol.replace(":", "") !== "https" && typeof XDomainRequest != "undefined"){
+			xhr = new XDomainRequest();
+			xhr.open(options.type, options.url);
+		} else {
+			xhr = document.createElement("script");
+			xhr.type = "text/javascript";
+			xhr.src = options.url;
+		}	
+		
+		if (!xhr) {
+			console && console.log && console.log("Error, no support for AJAX!");
+			return;
+		}
+		
+		try { xhr.withCredentials = false; } catch(e) {};
+		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Content-type', 'application/json');
+		
+		xhr.onload = function (e) { 
+			_handleResponse('load')(_is_iexplorer() ? e : e.target); 
+		};
+	    xhr.onerror = function (e) { 
+			_handleResponse('error')(_is_iexplorer() ? e : e.target);
+		};
+	    xhr.send(options.data);
+		
+		function _handleResponse(eventType) {
+			return function (XHRobj) {
+				var XHRobj = _is_iexplorer() ? xhr : XHRobj;
+
+				if (eventType == 'load' && (_is_iexplorer() || XHRobj.readyState == 4) && typeof options.success === "function") {
+					options.success(XHRobj.responseText, XHRobj);
+				} else if (typeof options.error === "function") {
+					options.error(XHRobj);
+				}	
+			}
+	    };
+	
 		//Returns cross-browser XMLHttpRequest, or null if unable
-		function _Xhr(){ 
-			try {
-				return new XMLHttpRequest();
-			}catch(e){}
-			try {
-				return new ActiveXObject("Msxml3.XMLHTTP");
-			}catch(e){}
-			try {
-				return new ActiveXObject("Msxml2.XMLHTTP.6.0");
-			}catch(e){}
-			try {
-				return new ActiveXObject("Msxml2.XMLHTTP.3.0");
-			}catch(e){}
-			try {
-				return new ActiveXObject("Msxml2.XMLHTTP");
-			}catch(e){}
-			try {
-				return new ActiveXObject("Microsoft.XMLHTTP");
-			}catch(e){}
+		function _createXHR(){ 
+			try { return new XMLHttpRequest(); } catch(e){}
+			try { return new ActiveXObject("Msxml3.XMLHTTP"); } catch(e){}
+			try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); } catch(e){}
+			try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); } catch(e){}
+			try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch(e){}
+			try { return new ActiveXObject("Microsoft.XMLHTTP"); } catch(e){}
 			return null;
+		}
+		
+		function _is_iexplorer() { 
+			return navigator.userAgent.indexOf('MSIE') !== -1;
 		}
 	};
 
     //JSONP
-    var $jsonp = (function(){
-        var that = {};
-
-        that.send = function(src, options) {
+    var jsonp = function(src, options) {
             var callback_name = options.callbackName || 'callback',
                 on_success = options.onSuccess || function(){},
                 on_timeout = options.onTimeout || function(){},
                 timeout = options.timeout || 10; // sec
 
             var timeout_trigger = window.setTimeout(function(){
-                window[callback_name] = function(){};
+                JsErrorCapture[jsonpCallback] = function(){};
                 on_timeout();
             }, timeout * 1000);
 
@@ -193,9 +251,6 @@ window.jsErrorCapture = (function(window) {
 
             document.getElementsByTagName('head')[0].appendChild(script);
         };
-
-        return that;
-    })();
 	
 	//Creates a function having context as this binded
 	var bind = function(context, fn) {
@@ -217,29 +272,12 @@ window.jsErrorCapture = (function(window) {
 		return destObj;
 	};
 	
-	//Collects data about the browser
-	var getBrowserData = function(data) {
-		switch (data) {
-			case "resolution":
-				return {
-					width: screen.width,
-					availWidth: screen.availWidth,
-					height: screen.height,
-					availHeight: screen.availHeight
-				};
-				break;
-			case "orientation":
-				return 'orientation'    in screen ? screen.orientation :
-                       'mozOrientation' in screen ? screen.mozOrientation :
-                       'msOrientation'  in screen ? screen.msOrientation :
-                       null;
-				break;
-		}
-	};
-	
 	return JsErrorCapture;
 
 })(window);
 
-
-var jsec = new jsErrorCapture();
+//try {
+	var jsec = new jsErrorCapture();
+//} catch(e) {
+//	console && console.log && console.log("An error occurred when initializing JSErrorCapture: ", e.message);
+//};	
