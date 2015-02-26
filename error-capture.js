@@ -5,6 +5,9 @@ window.jsErrorCapture = (function(window) {
 	var JsErrorCapture = function(options) {
 		this.options = copy({
 			captureErrors: true,      //Capture errors (if set to false the tool does not do anything)
+			captureErroneousAjaxCalls: {
+				statuses: [500, 404]
+			},
 			sendErrorsViaAjax: {
 				crossDomain: false     //Send the errors to different domain
 			},
@@ -27,8 +30,64 @@ window.jsErrorCapture = (function(window) {
 		if (this.options.captureErrors) {
 			this.addErrorEvent(this.handleError);
 		}
-	};
 		
+		//Log also errors after erroneous ajax calls
+		if (this.options.captureErroneousAjaxCalls && this.options.captureErroneousAjaxCalls.statuses) {
+			this.watchAjaxCalls();
+		}	
+	};
+	
+	//Add "error" event to window (fallback window.onerror())
+	JsErrorCapture.prototype.addErrorEvent = function(callback) {
+		var event = "error",
+			element = window,
+			self = this;
+			
+		//Modern browsers way (and IE 11+)
+		if (element.addEventListener) {
+			element.addEventListener(event, bind(this, callback));
+			return true;
+		} 
+		//MSIE way
+		else if (element.attachEvent) {
+			return element.attachEvent('on' + event, bind(this, callback));
+		}
+		//Traditional way
+		else {
+			event = 'on' + event;
+			if (typeof element[event] === 'function'){
+				callback = (function(f1, f2){
+					return function(){
+						f1.apply(this, arguments);
+						console.log(f2);
+						f2.apply(self, arguments);
+					}
+				})(element[event], bind(self, callback));
+			} else {
+				callback = bind(self, callback);
+			}
+			element[event] = callback;
+			return true;
+		}
+		
+		//Add window.onerror()
+		var originalOnError = window.onerror;
+		window.onerror = function(errorMsg, url, lineNumber, columnNumber, errorObject) {
+			var errorObj = {
+				message: errorMsg,
+				filename: url,
+				lineno: lineNumber, 
+				colno: columnNumber,
+				timestamp: (new Date()).getTime(),
+				target: url
+				//errorObject: errorObject
+			};
+			
+			bind(self, callback).call(this, errorObj);
+			if (typeof originalOnError === "function") { originalOnError.apply(this, arguments); }
+		};
+	};
+	
 	//When an error occurs this function is called
 	JsErrorCapture.prototype.handleError = function(errorObj) {
 		//Increment the error counter 
@@ -101,53 +160,38 @@ window.jsErrorCapture = (function(window) {
         });
 	};
 	
-	JsErrorCapture.prototype.addErrorEvent = function(callback) {
-		var event = "error",
-			element = window,
-			self = this;
-			
-		//Modern browsers way (and IE 11+)
-		if (element.addEventListener) {
-			element.addEventListener(event, bind(this, callback));
-			return true;
-		} 
-		//MSIE way
-		else if (element.attachEvent) {
-			return element.attachEvent('on' + event, bind(this, callback));
+	//Log also errors after erroneous ajax calls
+	JsErrorCapture.prototype.watchAjaxCalls = function() {
+		//Check jQuery
+		if (typeof window.jQuery === "function") {
+			this.watchJQueryAjaxErrors();
 		}
-		//Traditional way
-		else {
-			event = 'on' + event;
-			if (typeof element[event] === 'function'){
-				callback = (function(f1, f2){
-					return function(){
-						f1.apply(this, arguments);
-						console.log(f2);
-						f2.apply(self, arguments);
+	};
+	
+	//Watch jQuery ajax calls and log errors if any
+	JsErrorCapture.prototype.watchJQueryAjaxErrors = function() {
+		var self = this,
+			origAjax = jQuery.ajax;
+			
+		jQuery.ajax = function(url, settings) {
+			var promise = origAjax.apply(this, arguments);
+			
+			//Assign another fail() handler
+			promise.fail(function(e) {
+				var notAllowedStatuses = self.options.captureErroneousAjaxCalls.statuses;
+				
+				for (var i = 0; i < notAllowedStatuses.length; i++) {
+					if (notAllowedStatuses[i] === e.status) {
+						//When an error occurs call the handleError function 
+						self.handleError({
+							message: "AJAX " + this.type + " call to " + this.url + "failed, status: " + e.status + ", statusText = " + e.statusText,
+							filename: location.href
+						});
 					}
-				})(element[event], bind(self, callback));
-			} else {
-				callback = bind(self, callback);
-			}
-			element[event] = callback;
-			return true;
-		}
-		
-		//Add window.onerror()
-		var originalOnError = window.onerror;
-		window.onerror = function(errorMsg, url, lineNumber, columnNumber, errorObject) {
-			var errorObj = {
-				message: errorMsg,
-				filename: url,
-				lineno: lineNumber, 
-				colno: columnNumber,
-				timestamp: (new Date()).getTime(),
-				target: url
-				//errorObject: errorObject
-			};
+				}
+			});
 			
-			bind(self, callback).call(this, errorObj);
-			if (typeof originalOnError === "function") { originalOnError.apply(this, arguments); }
+			return promise;
 		};
 	};
 	
