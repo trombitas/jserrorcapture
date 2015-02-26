@@ -5,6 +5,8 @@ window.jsErrorCapture = (function(window) {
 		this.options = copy({
 			captureErrors: true,      //Capture errors (if set to false the tool does not do anything)
 			logErrorsViaAjax: true,   //Send the errors via ajax or ....
+            crossDomain: true,        //Send the errors to different domain
+            ajaxUrl: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
 			logErrorsTimeout: 3000,   //When an error is captured wait a bit to see whether others would join in the package (milliseconds)
 			logErrorsCount: 3,        //Send a package if the number of errors captured within the Timeout reaches this number
 			maxLogsCount: -1          //The number of logs to send: -1 = infinite
@@ -66,7 +68,18 @@ window.jsErrorCapture = (function(window) {
 	
 	//Send the errors via AJAX
 	JsErrorCapture.prototype.sendErrorsViaAjax = function() {
-		console.log("Sending the errors ", this.errors);
+        if (this.options.crossDomain) {
+            $jsonp.send(this.options.ajaxUrl + '?callback=test', {
+                callbackName: 'test',
+                onSuccess: function(json){
+                    console.log('success!', json);
+                },
+                onTimeout: function(){
+                    console.log('timeout!');
+                },
+                timeout: 5
+            });
+        }
 	};
 	
 	JsErrorCapture.prototype.addErrorEvent = function(callback) {
@@ -152,6 +165,37 @@ window.jsErrorCapture = (function(window) {
 			return null;
 		}
 	};
+
+    //JSONP
+    var $jsonp = (function(){
+        var that = {};
+
+        that.send = function(src, options) {
+            var callback_name = options.callbackName || 'callback',
+                on_success = options.onSuccess || function(){},
+                on_timeout = options.onTimeout || function(){},
+                timeout = options.timeout || 10; // sec
+
+            var timeout_trigger = window.setTimeout(function(){
+                window[callback_name] = function(){};
+                on_timeout();
+            }, timeout * 1000);
+
+            window[callback_name] = function(data){
+                window.clearTimeout(timeout_trigger);
+                on_success(data);
+            };
+
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.async = true;
+            script.src = src;
+
+            document.getElementsByTagName('head')[0].appendChild(script);
+        };
+
+        return that;
+    })();
 	
 	//Creates a function having context as this binded
 	var bind = function(context, fn) {
