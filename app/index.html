@@ -6,7 +6,7 @@
 		<title>JSErrorCapture</title>
 		
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-		<script type="text/javascript" src="error-capture.js"></script>
+		<script type="text/javascript" src="app/scripts/error-capture.js"></script>
 		<script type="text/javascript">
 			var errors = [
 				"x.x = 1;",
@@ -24,18 +24,9 @@
 				var index = Math.floor(Math.random() * errors.length); 
 				
 				if (errors[index]) {
-					//console.log(errors[index]);
 					eval(errors[index]);
 				}
 			}
-			
-			$(document).ready(function() {
-				$.ajax({
-					url: "http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.phpx"
-				})
-			});
-			
-			
 		</script>
 	</head>
 	<body style="padding:50px">

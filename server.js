@@ -8,7 +8,7 @@ app.use(bodyParser.text({ type: 'text/html' }));
 app.use(bodyParser.json());
 
 app.get('/', function(req, res){
-    var html = fs.readFileSync('index.html');
+    var html = fs.readFileSync('app/index.html');
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.end(html);
 });
@@ -23,9 +23,5 @@ app.get(/.js|.html/, function(req, res) {
     res.end(fs.readFileSync("./" + req.url));
 });
 
-app.post('/', function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end("Greetings from the server: " + JSON.stringify(req.body));
-});
 app.listen(port);
 console.log('Listening at http://localhost:' + port);

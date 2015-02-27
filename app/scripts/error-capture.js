@@ -6,7 +6,7 @@ window.jsErrorCapture = (function(window) {
 		this.options = copy({
 			captureErrors: true,      //Capture errors (if set to false the tool does not do anything)
 			captureErroneousAjaxCalls: {
-				statuses: [500, 404]
+				ignoreStatuses: [400, 300]
 			},
 			sendErrorsViaAjax: {
 				crossDomain: false     //Send the errors to different domain
@@ -32,7 +32,7 @@ window.jsErrorCapture = (function(window) {
 		}
 		
 		//Log also errors after erroneous ajax calls
-		if (this.options.captureErroneousAjaxCalls && this.options.captureErroneousAjaxCalls.statuses) {
+		if (this.options.captureErroneousAjaxCalls) {
 			this.watchAjaxCalls();
 		}	
 	};
@@ -178,16 +178,14 @@ window.jsErrorCapture = (function(window) {
 			
 			//Assign another fail() handler
 			promise.fail(function(e) {
-				var notAllowedStatuses = self.options.captureErroneousAjaxCalls.statuses;
+				var ignoreStatuses = self.options.captureErroneousAjaxCalls.ignoreStatuses;
 				
-				for (var i = 0; i < notAllowedStatuses.length; i++) {
-					if (notAllowedStatuses[i] === e.status) {
-						//When an error occurs call the handleError function 
-						self.handleError({
-							message: "AJAX " + this.type + " call to " + this.url + "failed, status: " + e.status + ", statusText = " + e.statusText,
-							filename: location.href
-						});
-					}
+				if ((ignoreStatuses && ignoreStatuses.indexOf(e.status) === -1) || !ignoreStatuses) {
+					//When an error occurs call the handleError function 
+					self.handleError({
+						message: "AJAX " + this.type + " call to " + this.url + "failed, status: " + e.status + ", statusText = " + e.statusText,
+						filename: location.href
+					});
 				}
 			});
 			
@@ -356,19 +354,25 @@ window.jsErrorCapture = (function(window) {
 		return str.join("&");
 	}
 	
+	//indexOf fallback for browsers that do not have support for it
+	if (!Array.prototype.indexOf) {
+		Array.prototype.indexOf = function(obj, start) {
+			 for (var i = (start || 0), j = this.length; i < j; i++) {
+				 if (this[i] === obj) { return i; }
+			 }
+			 return -1;
+		}
+	}
+	
 	return JsErrorCapture;
 
 })(window);
 
-//try {
-	var jsec = new jsErrorCapture({
-		sendErrorsViaAjax: {
-			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
-			crossDomain: false
-		},
-		logErrorsTimeout: 5000,
-		logErrorsCount: 3
-	});
-//} catch(e) {
-//	console && console.log && console.log("An error occurred when initializing JSErrorCapture: ", e.message);
-//};	
+var jsec = new jsErrorCapture({
+	sendErrorsViaAjax: {
+		url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
+		crossDomain: false
+	},
+	logErrorsTimeout: 2000,
+	logErrorsCount: 3
+});	
