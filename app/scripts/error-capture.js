@@ -59,7 +59,6 @@ window.jsErrorCapture = (function(window) {
 				callback = (function(f1, f2){
 					return function(){
 						f1.apply(this, arguments);
-						console.log(f2);
 						f2.apply(self, arguments);
 					}
 				})(element[event], bind(self, callback));
@@ -69,23 +68,6 @@ window.jsErrorCapture = (function(window) {
 			element[event] = callback;
 			return true;
 		}
-		
-		//Add window.onerror()
-		var originalOnError = window.onerror;
-		window.onerror = function(errorMsg, url, lineNumber, columnNumber, errorObject) {
-			var errorObj = {
-				message: errorMsg,
-				filename: url,
-				lineno: lineNumber, 
-				colno: columnNumber,
-				timestamp: (new Date()).getTime(),
-				target: url
-				//errorObject: errorObject
-			};
-			
-			bind(self, callback).call(this, errorObj);
-			if (typeof originalOnError === "function") { originalOnError.apply(this, arguments); }
-		};
 	};
 	
 	//When an error occurs this function is called
