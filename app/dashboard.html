@@ -5,20 +5,13 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 	<script src="scripts/error-list.js"></script>
+	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 	<div class="page-header">
-		<h1 id="tables">Errors</h1>
+		<h1 id="tables">Dashboard</h1>
 	</div>
-	<div class="form-group col-lg-2">
-		<div class="form-group">
-			<label for="refreshTimeout" class="col-lg-6 control-label">Refresh Timeout</label>
-			<div class="col-lg-6">
-				<input type="text" class="form-control" id="refreshTimeout">
-			</div>
-		</div>
-	</div>
-	<table class="table table-striped table-hover">
+	<table class="table table-bordered table-striped bs-events-table">
 		<thead>
 			<tr>
 				<th>
@@ -37,10 +30,10 @@
 					File name
 				</th>
 				<th>
-					Line number
+					Line
 				</th>
 				<th>
-					Col number
+					Col
 				</th>
 				<th>
 					OS name
@@ -73,6 +66,9 @@
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 			<h4 class="modal-title" id="myModalLabel">Format</h4>
 		  </div>
+		  <table class="table table-bordered table-striped bs-events-table" id="attrsList">
+			
+		  </table>
 		  <pre class="modal-body" id="formatText">
 
 		  </pre>
@@ -82,5 +78,7 @@
 		</div>
 	  </div>
 	</div>
+	
+	
 </body>
 </html>

@@ -10,7 +10,7 @@ class ErrorLoggerToMysql {
 	
 	public function sendData($data) {
 		$clientId = $data['clientId'] ? $data['clientId'] : 0;
-		$browserOrientationId = $this->mysql->getData("browser_orientations", ['orientation_type' => $data['browserOrientation']], 'ID');
+		$browserOrientationId = $this->mysql->getData("browser_orientations", ['orientation_type' => $data['orientation']], 'ID');
 		
 		$browser = new BrowserDetection($data['browser']);
 		$userBrowserName = $browser->getBrowser();
