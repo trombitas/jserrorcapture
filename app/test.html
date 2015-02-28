@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>JSErrorCapture</title>
+		
+		<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+		<script type="text/javascript">
+			var errors = [
+				"x.x = 1;",
+				"z = t;",
+				"x = 5;x();",
+				"throw new TypeError('This is a Typerror', 'index.html', 10);",
+				"throw new SyntaxError('This is a SyntaxError', 'index.html', 20);",
+				"throw new ReferenceError('This is a ReferenceError', 'index.html', 30);",
+				"throw new RangeError ('This is a RangeError ', 'index.html', 40);",
+				"throw new URIError ('This is a URIError ', 'index.html', 50);",
+				"throw new EvalError ('This is an EvalError ', 'index.html', 60);"
+			];
+			
+			function pickError() {
+				var index = Math.floor(Math.random() * errors.length); 
+				
+				if (errors[index]) {
+					eval(errors[index]);
+				}
+			}
+		</script>
+	</head>
+	<body style="padding:50px">
+		
+		<h1>Error generation tool</h1>
+
+		<button onclick="pickError()">Produce an error</button>
+	
+	<script type="text/javascript">
+		(function(d,a,c,e,f){var b=a.createElement(c);b.type="text/javascript";b.async=!0;b.src="http://jserrorcapture.byethost18.com/jserrorcapture.js";a=a.getElementsByTagName(c)[0];a.parentNode.insertBefore(b,a);d[e]=f})(window,document,"script","jsErrorCaptureObject",{sendOptions:{url:"http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php",method:"img",format:"url"}});
+	</script>
+	
+	</body>
+</html>

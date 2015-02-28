@@ -384,10 +384,7 @@ window.jsErrorCapture = (function(window) {
 
 })(window);
 
-new jsErrorCapture({
-		sendOptions: {
-			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php',
-			method: "img",
-			format: "url"
-		}
-	});	
+//Init JSErrorCapture
+if (Object.prototype.toString.call(window.jsErrorCaptureObject) === "[object Object]") {
+	new jsErrorCapture(window.jsErrorCaptureObject);
+}
