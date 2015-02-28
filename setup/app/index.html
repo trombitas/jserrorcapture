@@ -1,0 +1,199 @@
+<!doctype html>
+<html ng-app="app">
+<head>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <script src="angular-1.3.14.js"></script>
+    <script src="ui-bootstrap-0.9.0.js"></script>
+    <script src="app.js"></script>
+</head>
+<body ng-controller="App">
+
+
+<div class="container form-horizontal">
+    <h5 style="float: right">You try, we catch</h5>
+    <h1>JS Error Capture Setup</h1>
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">Notification URL:</label>
+        </div>
+        <div class="col-xs-6">
+            <input type="text" class="form-control" ng-model="config.url">
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">Notification Method:</label>
+        </div>
+        <div class="col-xs-4">
+            <!--<label ng-repeat="method in methods" class="btn btn-primary" ng-model="config.method" btn-radio="method.name">{{method.name}}</label>-->
+            <div class="radio" ng-repeat="method in methods">
+                <label>
+                    <input type="radio" name="method" ng-model="config.method" ng-value="method.name"> {{method.name}}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">Request Format:</label>
+        </div>
+        <div class="col-xs-4">
+            <div class="btn-group">
+                <label ng-repeat="fmt in formats" class="btn btn-primary" ng-model="config.format" btn-radio="fmt" ng-disabled="fmt!=='url' && config.method!=='post'">{{fmt}}</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">Ajax Errors:</label>
+        </div>
+        <div class="col-xs-1">
+            <input type="checkbox" class="form-control" ng-model="config.ajax.enabled">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">Report Fields:</label>
+        </div>
+        <div class="col-xs-3" ng-repeat="group in fieldGroups" ng-show="group.name!=='ajax-error' || config.ajax.enabled">
+            <h5>{{group.label}}</h5>
+
+            <div class="checkbox" ng-repeat="fieldName in group.fields" ng-init="field=fields[fieldName]">
+                <label>
+                    <input type="checkbox" ng-model="config.fields[fieldName]">
+                    {{field.label}}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" ng-show="config.ajax.enabled">
+        <div class="col-xs-2">
+            <label class="control-label">Ajax Filters:</label>
+        </div>
+        <div class="col-xs-10">
+            <table class="table table-condensed">
+                <tr>
+                    <th>URL Regexp</th>
+                    <th>Method Regexp</th>
+                    <th>Status Regexp</th>
+                    <th>Action</th>
+                </tr>
+                <tr ng-repeat="filter in config.ajax.filters track by $index" ng-class="{danger: filter.action==='report', success: filter.action==='ignore'}">
+                    <td><input type="text" class="form-control" ng-model="filter.url"></td>
+                    <td><input type="text" class="form-control" ng-model="filter.method"></td>
+                    <td><input type="text" class="form-control" ng-model="filter.status"></td>
+                    <td>
+                        <div class="btn-group">
+                            <label class="btn btn-success" ng-model="filter.action" btn-radio="'ignore'">IGNORE</label>
+                            <label class="btn btn-danger" ng-model="filter.action" btn-radio="'report'">REPORT</label>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">Rate Limit</label>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">- max notifications:</label>
+        </div>
+        <div class="col-xs-1">
+            <input type="number" class="form-control" ng-model="config.rate.maxNotifs" min="1">
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">- in how many seconds:</label>
+        </div>
+
+        <div class="col-xs-1">
+            <input type="number" class="form-control" ng-model="config.rate.seconds" min="1">
+        </div>
+
+        <div class="col-xs-9" style="font-style: italic">
+            (maximum <b>{{config.rate.maxNotifs}}</b> notifications sent in any interval of <b>{{config.rate.seconds}}</b> seconds)
+        </div>
+    </div>
+
+
+    <div class="row"></div>
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label">Current Config</label>
+        </div>
+
+        <div class="col-xs-8">
+            <textarea class="form-control" rows="10" ng-model="generatedConfig"></textarea>
+        </div>
+    </div>
+
+    <div class="row" ng-show="showCode">
+        <div class="col-xs-2">
+            <label class="control-label">Catcher Code</label>
+        </div>
+        <div class="col-xs-4">
+            <button type="button" class="btn btn-success" ng-click="generate()">GENERATE CATCHER CODE</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-2"></div>
+
+        <div class="col-xs-8">
+            <textarea class="form-control" rows="10" ng-model="generatedCode"></textarea>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-2">Generate errors</div>
+        <div class="col-xs-1">
+            <input type="text" class="form-control" ng-model="ge.millis">
+        </div>
+        <div class="col-xs-1">
+            <input type="text" class="form-control" ng-model="ge.prob">
+        </div>
+        <div class="col-xs-1">
+            <button type="button" class="btn btn-primary" onclick="xxx=yyy" ng-click="startErrors()">Start</button>
+        </div>
+        <div class="col-xs-1">
+            <button type="button" class="btn btn-primary" ng-click="stopErrors()">Stop</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-2">
+            <label class="control-label"></label>
+        </div>
+
+        <div class="col-xs-2">
+            <button type="button" class="btn btn-warning" ng-click="generateError()">GENERATE ERROR 1</button>
+        </div>
+        <div class="col-xs-2">
+            <button type="button" class="btn btn-warning" onclick="b=a">GENERATE ERROR 2</button>
+        </div>
+
+
+    </div>
+
+</div>
+
+</body>
+</html>

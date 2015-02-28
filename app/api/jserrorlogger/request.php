@@ -1,15 +1,19 @@
 <?php 
-    header('content-type: application/json; charset=utf-8');
+    header('Access-Control-Allow-Origin: *');
+	error_reporting(E_ERROR | E_WARNING);
+	include_once 'util/Mysql.php';
+	include_once 'util/ErrorLogger.php';
+
+	if(sizeof($_POST))
+		$data = $_POST;
+	else if(sizeof($_GET))
+		$data = $_GET;
 	
-	if (isset($_POST) && sizeof($_POST)) {
-		print_r($_POST);
+	if($data['data']) {
+		$json = json_decode($data['data'], true);
+	} else {
+		$json = $data;
 	}
 	
-	if (isset($_GET) && sizeof($_GET)) {
-		print_r($_GET);
-	}
-	
-    echo isset($_GET['callback'])
-        ? "{$_GET['callback']}()"
-        : null;
+	$errorLogger = new ErrorLogger($json);
 ?>

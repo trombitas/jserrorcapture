@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+	<script src="scripts/error-list.js"></script>
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div class="page-header">
+		<h1 id="tables">Dashboard</h1>
+	</div>
+	<table class="table table-bordered table-striped bs-events-table">
+		<thead>
+			<tr>
+				<th>
+					#ID
+				</th>
+				<th>
+					Date
+				</th>
+				<th>
+					Error type
+				</th>
+				<th>
+					Message
+				</th>
+				<th>
+					File name
+				</th>
+				<th>
+					Line
+				</th>
+				<th>
+					Col
+				</th>
+				<th>
+					OS name
+				</th>
+				<th>
+					Resolution
+				</th>
+				<th>
+					Browser name
+				</th>
+				<th>
+					Browser version
+				</th>
+				<th>
+					Orientation type
+				</th>
+				<th>
+					Lang
+				</th>
+			</tr>
+		</thead>
+		<tbody id="errors"></tbody>
+	</table>
+
+	<!-- Modal -->
+	<div class="modal fade bs-example-modal-lg" id="format" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-lg">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title" id="myModalLabel">Format</h4>
+		  </div>
+		  <table class="table table-bordered table-striped bs-events-table" id="attrsList">
+			
+		  </table>
+		  <pre class="modal-body" id="formatText">
+
+		  </pre>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	
+	
+</body>
+</html>
