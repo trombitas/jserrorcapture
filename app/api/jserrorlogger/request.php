@@ -1,15 +1,10 @@
 <?php 
+	error_reporting(E_ERROR | E_WARNING);
     header('content-type: application/json; charset=utf-8');
-	
-	if (isset($_POST) && sizeof($_POST)) {
-		print_r($_POST);
-	}
-	
-	if (isset($_GET) && sizeof($_GET)) {
-		print_r($_GET);
-	}
-	
-    echo isset($_GET['callback'])
-        ? "{$_GET['callback']}()"
-        : null;
+	include_once 'util/Mysql.php';
+	include_once 'util/ErrorLogger.php';
+	if(sizeof($_POST))
+		$errorLogger = new ErrorLogger($_POST);
+	else if(sizeof($_GET))
+		$errorLogger = new ErrorLogger($_GET);
 ?>
