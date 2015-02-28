@@ -3,10 +3,8 @@
     header('content-type: application/json; charset=utf-8');
 	include_once 'util/Mysql.php';
 	include_once 'util/ErrorLogger.php';
-
-	$errorLogger = new ErrorLogger(sizeof($_POST) ? $_POST['errors'] : $_GET['errors']);
-	
-	if(isset($_GET['callback'])) {
-		echo "{$_GET['callback']}(null)";
-	}
+	if(sizeof($_POST))
+		$errorLogger = new ErrorLogger($_POST);
+	else if(sizeof($_GET))
+		$errorLogger = new ErrorLogger($_GET);
 ?>

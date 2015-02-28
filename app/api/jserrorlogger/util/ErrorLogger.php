@@ -4,11 +4,14 @@ include_once 'ErrorLoggerToMysql.php';
 
 class ErrorLogger extends ErrorLoggerToMysql{
 	private $errorData = [];
+	private $format;
 	private $logErrorsTo;
 
 	public function __construct($data) {
+		$this->format = $data;
 		$this->openConnection();
-		$this->getData($data[0]);
+		$this->getData($data);
+		$this->errorData['format'] = json_encode($this->format, JSON_PRETTY_PRINT);
 		$this->sendData($this->errorData);
 		$this->closeConnection();
 	}
