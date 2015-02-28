@@ -13,12 +13,15 @@ app.get('/', function(req, res){
     res.end(html);
 });
 
-app.get(/.js|.html/, function(req, res) {
+app.get(/.js|.html|.css/, function(req, res) {
 	if (req.url.indexOf(".js") > -1) {
 		res.writeHead(200, {'Content-Type': 'text/javascript'});
 	}
 	if (req.url.indexOf(".html") > -1) {
 		res.writeHead(200, {'Content-Type': 'text/html'});
+	}
+	if (req.url.indexOf(".css") > -1) {
+		res.writeHead(200, {'Content-Type': 'text/css'});
 	}
     res.end(fs.readFileSync("./" + req.url));
 });
