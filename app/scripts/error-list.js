@@ -35,13 +35,14 @@ $(document).ready(function () {
 				displayWindow(row);
 			});
 		});
-		displayWindow(firstRow);
+		if(firstRow)
+			displayWindow(firstRow);
 	}
 	var displayWindow = function(row){
-		$("#formatText").html(row.format);
+		$("#formatText").html(row.formatXml ? atob(row.formatXml).replace(/</g,'&lt;').replace(/>/g,'&gt;') : row.formatJson);
 		$("#myModalLabel").html(row.message);
 		try {	
-			var obj = JSON.parse(row.format);
+			var obj = JSON.parse(row.formatJson);
 			var attrsList = $("#attrsList");
 			attrsList.children("tbody").children("tr").remove();
 			for(attr in obj) {
@@ -51,7 +52,7 @@ $(document).ready(function () {
 				}
 			}
 		} catch (e) {
-		
+			console.log("ERROR", e);
 		}
 		$("#format").modal('show');
 	}

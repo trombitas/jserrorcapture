@@ -29,9 +29,10 @@ class ErrorLoggerToMysql {
 		$col_number = $data['colNumber'];
 		$time = $data['time'];
 		$lang = $data['lang'];
-		$format = $data['format'];
-		$this->mysql->query("insert into errors (client_id, browser_id, os_id, resolution_id, browser_orientation_id, error_type_id, message, file_name, line_number, col_number, time, lang, format)
-							values ('$clientId', '$browserId', '$osId', '$resolutionId', '$browserOrientationId', '$errorTypeId', '$message', '$file_name', '$line_number', '$col_number', '$time', '$lang', '$format')");
+		$formatJson = $data['formatJson'];
+		$formatXml = base64_encode($data['formatXml']);
+		$this->mysql->query("insert into errors (client_id, browser_id, os_id, resolution_id, browser_orientation_id, error_type_id, message, file_name, line_number, col_number, time, lang, formatJson, formatXml)
+							values ('$clientId', '$browserId', '$osId', '$resolutionId', '$browserOrientationId', '$errorTypeId', '$message', '$file_name', '$line_number', '$col_number', '$time', '$lang', '$formatJson', '$formatXml')");
 	}
 	
 	public function openConnection() {

@@ -7,11 +7,14 @@ class ErrorLogger extends ErrorLoggerToMysql{
 	private $format;
 	private $logErrorsTo;
 
-	public function __construct($data) {
+	public function __construct($data, $xmlContent) {
 		$this->format = $data;
 		$this->openConnection();
 		$this->getData($data);
-		$this->errorData['format'] = json_encode($this->format, JSON_PRETTY_PRINT);
+		$this->errorData['formatJson'] = json_encode($this->format, JSON_PRETTY_PRINT);
+		if($xmlContent) {
+			$this->errorData['formatXml'] = $xmlContent;
+		}
 		$this->sendData($this->errorData);
 		$this->closeConnection();
 	}

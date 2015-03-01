@@ -8,7 +8,7 @@
 	
 	$nr = mysql_num_rows(mysql_query("select id from errors where displayed='0'"));
 	if($nr or $_POST['firstcall'] == 'true') {
-		$query = mysql_query("select E.ID as id, E.MESSAGE as message, E.FILE_NAME as file_name, E.LINE_NUMBER as line_number, E.COL_NUMBER as col_number, E.TIME as time, E.LANG as lang, E.FORMAT as format,
+		$query = mysql_query("select E.ID as id, E.MESSAGE as message, E.FILE_NAME as file_name, E.LINE_NUMBER as line_number, E.COL_NUMBER as col_number, E.TIME as time, E.LANG as lang, E.formatJson as formatJson, E.formatXml as formatXml,
 									 B_L.BROWSER_NAME as browser_name, B_L.BROWSER_VERSION as browser_version, 
 									 os.OS_NAME as os_name, os.OS_VERSION as os_version, 
 									 R.WIDTH as width, R.HEIGHT as height,
