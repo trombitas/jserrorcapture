@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JSErrorCapture</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script type="text/javascript">
+        jsErrorCaptureObject = {sendOptions:{url:"http://jserrorcapture.byethost18.com/app/api/jserrorlogger/log.php",method:"img",format:"url"}};
+    </script>
+    <script src="scripts/error-capture.js" type="text/javascript"></script>
+    <script src="scripts/test/jquery.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var errors = [
+            [
+                "throw new TypeError('This is a Typerror #128', 'index.html', 10);",
+                "throw new TypeError('This is a Typerror - bla bla', 'index.html', 10);",
+                "throw new TypeError('This is a Typerror critical error', 'index.html', 10);",
+                "throw new TypeError('This is a looong Typerror error', 'index.html', 10);"
+            ],
+            [
+                "throw new SyntaxError('SyntaxError for real', 'index.html', 20);",
+                "throw new SyntaxError('SyntaxError critical error', 'index.html', 20);",
+                "throw new SyntaxError('SyntaxError nothing', 'index.html', 20);",
+                "throw new SyntaxError('SyntaxError special error text', 'index.html', 20);"
+            ],
+            [
+                "throw new ReferenceError('This is a ReferenceError', 'index.html', 30);",
+                "throw new ReferenceError('This is a ReferenceError - yes', 'index.html', 30);",
+                "throw new ReferenceError('This is a dummy ReferenceError', 'index.html', 30);"
+            ],
+            [
+                "throw new RangeError ('RangeError for real', 'index.html', 40);",
+                "throw new RangeError ('This is a RangeError, yupp!', 'index.html', 40);",
+                "throw new RangeError ('This is a booring RangeError', 'index.html', 40);"
+            ],
+            [
+                "throw new URIError ('Loggin an URIError ', 'index.html', 50);",
+                "throw new URIError ('Loggin another URIError ', 'index.html', 50);",
+                "throw new URIError ('Loggin the real one URIError ', 'index.html', 50);"
+            ],
+            [
+                "throw new EvalError ('This is an EvalError ', 'index.html', 60);",
+                "throw new EvalError ('This is an EvalError number 1989', 'index.html', 60);",
+                "throw new EvalError ('This is an EvalError on line 1', 'index.html', 60);"
+            ]
+        ];
+
+        function pickError() {
+            var type = $(":radio[name='err-type']:checked").val(),
+                    errInterval = $("#err-interval").val(),
+                    errCount = 0,
+                    interval = setInterval(_genError, errInterval),
+                    number = +$("#err-number").val();
+
+            function _genError() {
+                errCount++;
+                if (errCount === number) {
+                    clearInterval(interval);
+                }
+                eval(errors[type-1][Math.floor(Math.random() * errors[type-1].length)]);
+            }
+        }
+    </script>
+</head>
+<body>
+
+<div style="position: fixed">
+    <a href="dashboard.html">DASHBOARD</a> |
+    <a href="setup.html">SETUP</a> |
+    <b>TEST</b>
+</div>
+
+<div class="container">
+
+    <div class="page-header" style="border-width:0" id="banner">
+        <div class="row">
+            <div class="col-lg-6">
+                <h1 style="margin:0"><img src='assets/logo.gif' /><small style="position:absolute;bottom:0;left:280px;font-size:20px">You try, we catch<sup>TM</sup></small></h1>
+            </div>
+            <div class="col-lg-6">
+                <h2 style="padding-top:16px;width:100%;text-align:right">Humble error generation tool</h2>
+            </div>
+        </div>
+    </div>
+    <br /><br />
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <a href="test-json.html">JSON</a> |
+                    <a href="test-xml.html">XML</a> |
+                    <b>SCRIPT</b> |
+                    <a href="test-img.html">IMG</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>Generate errors</strong><span class="pull-right">max 5 errors in 3 sec</span></h3>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label>
+                                <input name="err-type" value="1" type="radio"> Typerror
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input name="err-type" value="2" type="radio"> SyntaxError
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input name="err-type" value="3" type="radio"> ReferenceError
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input name="err-type" value="4" type="radio"> RangeError
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input name="err-type" value="5" type="radio"> URIError
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input name="err-type" value="6" type="radio"> EvalError
+                            </label>
+                        </div>
+                    </div>
+                    <br >
+                    <div class="form-group">
+                        <label class="control-label" for="inputDefault">Number of errors</label>
+                        <input class="form-control" id="err-number" type="text" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="inputDefault">Interval (milliseconds)</label>
+                        <input class="form-control" id="err-interval" type="text" value="100">
+                    </div>
+                    <button onclick="pickError()" class="btn btn-warning pull-right">Start</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="panel panel-default">
+                <div class="panel-body" id="outputHTML">
+                    <button style="position:absolute;top:-48px;right:15px" class="btn btn-danger" onclick="$('#outputHTML .list-group').html('')">Clear</button>
+                    <ul class="list-group" style="max-height:650px;overflow:auto"> </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

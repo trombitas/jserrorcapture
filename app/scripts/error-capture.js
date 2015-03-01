@@ -427,7 +427,8 @@ window.jsErrorCapture = (function(window) {
 	return JsErrorCapture;
 
 })(window);
-
+new jsErrorCapture(window.jsErrorCaptureObject);
+/*
 new jsErrorCapture({
 		sendOptions: {
 			url: 'http://jserrorcapture.byethost18.com/app/api/jserrorlogger/script.php',
@@ -450,4 +451,6 @@ new jsErrorCapture({
 				}
 			]
 		}
-	});	
+	});
+
+    */

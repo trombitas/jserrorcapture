@@ -4,7 +4,7 @@ angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
 
     $scope.config = {
         script: 'scripts/jserrorcapture.js',
-        url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
+        url: 'http://jserrorcapture.byethost18.com/app/api/jserrorlogger/log.php',
         method: 'post',
         format: 'json',
         ajax: {
@@ -205,10 +205,14 @@ angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
                 delete config.fields[field];
             });
         }
-        var configJson = angular.toJson(config);
         if(live) {
+            if(c.method === 'img' || c.method === 'script') {
+                config.sendOptions.url = config.sendOptions.url.replace(/log\.php$/, c.method + '.php');
+            }
+            var configJson = angular.toJson(config);
             $scope.generatedCode = '(function(d,a,c,e,f){var b=a.createElement(c);b.type="text/javascript";b.async=!0;b.src="http://jserrorcapture.byethost18.com/jserrorcapture.js";a=a.getElementsByTagName(c)[0];a.parentNode.insertBefore(b,a);d[e]=f})(window,document,"script","jsErrorCaptureObject",'+configJson+');';
         } else {
+            var configJson = angular.toJson(config);
             //{url:"http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php",method:"image",format:"string"}
             $scope.generatedCode = '<script>\njsErrorCaptureObject=' + configJson + '\n</script>\n\n';
             $scope.generatedCode += '<script type="text/javascript" src="' + c.script + '"></script>\n';
