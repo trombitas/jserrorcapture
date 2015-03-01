@@ -189,7 +189,7 @@ angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
     $scope.generate = function(live) {
         var c = angular.copy($scope.config);
         var config = {
-            sendingOptions: {
+            sendOptions: {
                 url: c.url,
                 method: c.method,
                 format: c.format

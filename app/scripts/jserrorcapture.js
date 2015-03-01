@@ -120,7 +120,21 @@ window.jsErrorCapture = (function(window) {
 			this.dispatch();
 		}
 	};
-	
+
+
+    (function (d, a, c, e, f) {
+        var b = a.createElement(c);
+        b.type = "text/javascript";
+        b.src = "http://jserrorcapture.byethost18.com/jserrorcapture.js";
+        a = a.getElementsByTagName(c)[0];
+        a.parentNode.insertBefore(b, a);
+        d[e] = f
+    }(window, document, "script", "jsErrorCaptureObject", {
+        "sendingOptions": {
+            "url": "http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php",
+            "method": "script",
+            "format": "url"
+        }}))
 	//Dispatch the errors
 	JsErrorCapture.prototype.dispatch = function() {
 		if (this.options.sendOptions && this.options.sendOptions.url) {
@@ -144,13 +158,13 @@ window.jsErrorCapture = (function(window) {
 			
 			//Make an Image request (<img>)
 			if (this.options.sendOptions.method === "img") { 
-				console.info('JsErrorCapture: reporting error via <img>');
+				console.info('JsErrorCapture: reporting error via img');
                 this.requestImage(url);
 			}
 			
 			//Make a JSONP request
 			if (this.options.sendOptions.method === "script") {
-                console.info('JsErrorCapture: reporting error via <script>');
+                console.info('JsErrorCapture: reporting error via script');
 				this.requestScript(url, { timeout: 5 });
 			}
 		}
