@@ -186,22 +186,24 @@ angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
     });
 
     $scope.generate = function() {
-        var config = angular.copy($scope.config);
+        var c = angular.copy($scope.config);
         var config = {
             sendingOptions: {
-            }
+                url: c.url,
+                method: c.method,
+                format: c.format
+            },
+            notificationRate: {
+                maxNotifications: c.rate.maxNotifs,
+                interval: c.rate.seconds
+            },
+            fields: c.fields
         }
-        if(!config.ajax.enabled) {
-            delete config.ajax.filters;
+        if(!c.ajax.enabled) {
             angular.forEach($scope.fieldGroups[2].fields, function(field) {
                 delete config.fields[field];
             });
         }
-        config.notificationRate = {
-            maxNotifications: config.rate.maxNotifs,
-            interval: config.rate.seconds
-        };
-        delete config.rate;
         var configJson = angular.toJson(config);
         //{url:"http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php",method:"image",format:"string"}
         //$scope.generatedCode = '(function(d,a,c,e,f){var b=a.createElement(c);b.type="text/javascript";b.async=!0;b.src="http://jserrorcapture.byethost18.com/jserrorcapture.js";a=a.getElementsByTagName(c)[0];a.parentNode.insertBefore(b,a);d[e]=f})(window,document,"script","jsErrorCaptureObject",{sendOptions:'+configJson+'});';
