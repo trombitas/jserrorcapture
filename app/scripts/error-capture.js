@@ -10,8 +10,8 @@ window.jsErrorCapture = (function(window) {
 				format: "url"		//url, json, xml
 			},
 			notificationRate: {
-				maxNotifications: 3,    //max 3 errors per interval
-				interval: 8				//seconds
+				maxNotifications: 5,    //max 3 errors per interval
+				interval: 3				//seconds
 			}
 		}, options);
 		
@@ -25,7 +25,7 @@ window.jsErrorCapture = (function(window) {
 		
 		//Add 'error' event to window
 		this.addErrorEvent(this.registerError);
-		console.log(this.options);
+		
 		//Capture HTTP erroneous calls
 		if (this.options.ajax) {
 			//this.captureHTTPErrors();
@@ -120,7 +120,12 @@ window.jsErrorCapture = (function(window) {
 			this.stack.push(currentTime);
 			//Send error
 			this.dispatch();
+			$("#outputHTML .list-group").append("<li class='list-group-item'><span class='label label-success'>Reported:</span> " + this.error.message + "</li>");
+		} else {
+			$("#outputHTML .list-group").append("<li class='list-group-item'><span class='label label-danger'>Ignored:</span> " + this.error.message + "</li>");
 		}
+		var cont = $('#outputHTML .list-group');
+		cont[0].scrollTop = cont[0].scrollHeight;
 	};
 	
 	//Dispatch the errors

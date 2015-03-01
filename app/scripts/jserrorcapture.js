@@ -25,7 +25,7 @@ window.jsErrorCapture = (function(window) {
 		
 		//Add 'error' event to window
 		this.addErrorEvent(this.registerError);
-		console.log(this.options);
+		
 		//Capture HTTP erroneous calls
 		if (this.options.ajax) {
 			//this.captureHTTPErrors();

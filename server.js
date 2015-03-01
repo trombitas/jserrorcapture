@@ -13,9 +13,12 @@ app.get('/', function(req, res){
     res.end(html);
 });
 
-app.get(/.js|.html|.css/, function(req, res) {
+app.get(/.js|.html|.css|.gif/, function(req, res) {
 	if (req.url.indexOf(".js") > -1) {
 		res.writeHead(200, {'Content-Type': 'text/javascript'});
+	}
+	if (req.url.indexOf(".gif") > -1) {
+		res.writeHead(200, {'Content-Type': 'image/gif' });
 	}
 	if (req.url.indexOf(".html") > -1) {
 		res.writeHead(200, {'Content-Type': 'text/html'});
@@ -23,7 +26,7 @@ app.get(/.js|.html|.css/, function(req, res) {
 	if (req.url.indexOf(".css") > -1) {
 		res.writeHead(200, {'Content-Type': 'text/css'});
 	}
-    res.end(fs.readFileSync("./" + req.url));
+    res.end(fs.readFileSync("app/" + req.url));
 });
 
 app.listen(port);

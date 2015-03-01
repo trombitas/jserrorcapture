@@ -5,8 +5,12 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>JSErrorCapture</title>
-		
-		<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<script type="text/javascript">
+			jsErrorCaptureObject = {sendOptions:{url:"http://jserrorcapture.byethost18.com/jserrorlogger/request.php",method:"post",format:"json"}};
+		</script>
+		<script src="scripts/error-capture.js" type="text/javascript"></script>
+		<script src="scripts/test/jquery.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			var errors = [
 				"x.x = 1;",
@@ -29,15 +33,47 @@
 			}
 		</script>
 	</head>
-	<body style="padding:50px">
+	<body>
 		
-		<h1>Error generation tool</h1>
+		<div class="container">
 
-		<button onclick="pickError()">Produce an error</button>
-	
-	<script type="text/javascript">
-		(function(d,a,c,e,f){var b=a.createElement(c);b.type="text/javascript";b.src="http://jserrorcapture.byethost18.com/jserrorcapture.js";a=a.getElementsByTagName(c)[0];a.parentNode.insertBefore(b,a);d[e]=f})(window,document,"script","jsErrorCaptureObject",{sendOptions:{url:"http://qu-b/api/jserrorlogger",method:"post",format:"json"}});
-	</script>
-	
+			<div class="page-header" id="banner">
+				<div class="row">
+					<div class="col-lg-6">
+						<h1 style="margin:0"><img src='assets/logo.gif' /></h1>
+					</div>
+					<div class="col-lg-6">
+						<h2 style="padding-top:16px;width:100%;text-align:right">Humble error generation tool</h2>
+					</div>
+				</div>
+			</div>
+			<br /><br />
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+						  <h3 class="panel-title">Generate errors</h3>
+						</div>
+						<div class="panel-body">
+							<div class="form-group">
+						    <label class="control-label" for="inputDefault">Default input</label>
+						    <input class="form-control" id="inputDefault" type="text">
+							</div>
+							<button onclick="pickError()" class="btn btn-warning">Start</button>
+						</div>
+					</div>
+				</div>
+				
+				<div class="col-lg-6">
+					<div class="panel panel-default">
+						<div class="panel-body" id="outputHTML">
+							<button style="position:absolute;top:-48px;right:15px" class="btn btn-danger" onclick="$('#outputHTML .list-group').html('')">Clear</button>
+							<ul class="list-group" style="max-height:650px;overflow:auto"> </ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		  
+		</div>
 	</body>
 </html>
