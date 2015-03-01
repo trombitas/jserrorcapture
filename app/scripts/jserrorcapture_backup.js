@@ -25,10 +25,10 @@ window.jsErrorCapture = (function(window) {
 		
 		//Add 'error' event to window
 		this.addErrorEvent(this.registerError);
-		console.log(this.options);
+		
 		//Capture HTTP erroneous calls
 		if (this.options.ajax) {
-			//this.captureHTTPErrors();
+			this.captureHTTPErrors();
 		}	
 	};
 	
@@ -70,21 +70,13 @@ window.jsErrorCapture = (function(window) {
 		//Modern browsers
 		if (typeof arguments[0] === "object") {
 			var errorObj = arguments[0];
-			if (Object.prototype.hasOwnProperty.call(errorObj, "status")) {
-				this.error = {
-					status: errorObj.status,
-					url: errorObj.url,
-					method: errorObj.method
-				};
-			} else {
-				this.error = {
-					message: errorObj.message,
-					filename: errorObj.filename,
-					lineNumber: errorObj.lineno,
-					colNumber: errorObj.colno,
-					stack: errorObj.error ? errorObj.error.stack : ""
-				};
-			}	
+			this.error = {
+				message: errorObj.message,
+				filename: errorObj.filename,
+				lineNumber: errorObj.lineno,
+				colNumber: errorObj.colno,
+				stack: errorObj.error ? errorObj.error.stack : ""
+			};
 		} else {
 			//Older IE
 			this.error = {
@@ -323,12 +315,11 @@ window.jsErrorCapture = (function(window) {
 	};
 	
 	JsErrorCapture.prototype.captureHTTPErrorsXmlHTTPRequest = function() {
-		var self = this,
-			RealXHRSend = XMLHttpRequest.prototype.send,
+		var RealXHRSend = XMLHttpRequest.prototype.send,
 			RealXHROpen = XMLHttpRequest.prototype.open,
 			method, 
 			url,
-			rules = self.options.ajax.rules;
+			rules = this.options.ajax.rules;
 		
 		//Overwrite the Open method of XMLHttpRequest
 		XMLHttpRequest.prototype.open = function(m, u) {
@@ -360,7 +351,7 @@ window.jsErrorCapture = (function(window) {
 			RealXHRSend.apply(this, arguments);
 		}	
 		
-		//Handle the HTTP call response status
+		//
 		var _handleStatus = function(method, url, status) {
 			var isUrl, isStatus, isMethod, action;
 			
@@ -370,24 +361,16 @@ window.jsErrorCapture = (function(window) {
 				isUrl = new RegExp(rules[i].url, "i");
 				isStatus = new RegExp(rules[i].status, "i");
 				isMethod = new RegExp(rules[i].method, "i");
-				console.log(rules[i], isUrl.test(), isStatus.test(), isMethod.test());
 				
 				if (isUrl.test() && isStatus.test() && isMethod.test()) {
-					_doAction(action, method, url, status);
+					_doAction(action);
 					return;
 				}
 			}
 		};
 		
-		//If action is to Report error send it
-		var _doAction = function(action, method, url, status) {
-			if (action.toLowerCase() === "report") {
-				self.registerError({
-					status: status,
-					method: method,
-					url: url
-				});
-			}
+		//
+		var _doAction = function() {
 		};
 	};
 	
@@ -423,26 +406,5 @@ window.jsErrorCapture = (function(window) {
 
 })(window);
 
-new jsErrorCapture({
-		sendOptions: {
-			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php',
-			method: "img",
-			format: "url"
-		},
-		ajax: {
-			rules: [
-				{
-					url: "jserrorlogger/error",
-					status: "500",
-					method: ".",
-					action: "ignore"
-				},
-				{
-					url: "jserrorlogger/request",
-					status: ".",
-					method: ".",
-					action: "report"
-				}
-			]
-		}
-	});	
+//Init JSErrorCapture
+new jsErrorCapture(window.jsErrorCaptureObject);

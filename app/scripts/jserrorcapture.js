@@ -423,26 +423,5 @@ window.jsErrorCapture = (function(window) {
 
 })(window);
 
-new jsErrorCapture({
-		sendOptions: {
-			url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php',
-			method: "img",
-			format: "url"
-		},
-		ajax: {
-			rules: [
-				{
-					url: "jserrorlogger/error",
-					status: "500",
-					method: ".",
-					action: "ignore"
-				},
-				{
-					url: "jserrorlogger/request",
-					status: ".",
-					method: ".",
-					action: "report"
-				}
-			]
-		}
-	});	
+//Init JSErrorCapture
+new jsErrorCapture(window.jsErrorCaptureObject);
