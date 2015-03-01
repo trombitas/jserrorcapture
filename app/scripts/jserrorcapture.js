@@ -130,7 +130,8 @@ window.jsErrorCapture = (function(window) {
 			this.options.sendOptions.format = this.options.sendOptions.format.toLowerCase();
 		
 			//Create an AJAX request
-			if (this.options.sendOptions.method === "post" || this.options.sendOptions.method === "get") { 
+			if (this.options.sendOptions.method === "post" || this.options.sendOptions.method === "get") {
+                console.info('JsErrorCapture: reporting error via ajax ' + this.options.sendOptions.method);
 				this.requestXHR({
 					type: this.options.sendOptions.method,
 					url: this.options.sendOptions.url,
@@ -143,11 +144,13 @@ window.jsErrorCapture = (function(window) {
 			
 			//Make an Image request (<img>)
 			if (this.options.sendOptions.method === "img") { 
-				this.requestImage(url);
+				console.info('JsErrorCapture: reporting error via <img>');
+                this.requestImage(url);
 			}
 			
 			//Make a JSONP request
 			if (this.options.sendOptions.method === "script") {
+                console.info('JsErrorCapture: reporting error via <script>');
 				this.requestScript(url, { timeout: 5 });
 			}
 		}
