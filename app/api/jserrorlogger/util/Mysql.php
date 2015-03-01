@@ -4,14 +4,14 @@ class Mysql {
 
 	private $dbhandle;
 
-    protected $serverName = 'localhost';
-    protected $userName = 'root';
-    protected $passCode = '';
-    protected $dbName = 'jserrorlogger';
+    protected $serverName = 'sql303.byethost18.com';
+    protected $userName = 'b18_15917402';
+    protected $passCode = 'endava2015';
+    protected $dbName = 'b18_15917402_jserrorlogger';
 
 	function dbConnect() {
-		$this->dbhandle = mysql_connect($this->serverName, $this->userName, $this->passCode);
-		$selected = mysql_select_db($this->dbName, $this->dbhandle) or die("NOT");	
+		$this->dbhandle = mysql_connect($this->serverName, $this->userName, $this->passCode) or die(mysql_error());
+		$selected = mysql_select_db($this->dbName, $this->dbhandle) or die(mysql_error());	
 	}
 
 	function dbDisconnect() {

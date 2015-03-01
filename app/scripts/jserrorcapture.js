@@ -102,8 +102,6 @@ window.jsErrorCapture = (function(window) {
 							 null
 			});
 		
-		console.log("Error registered", this.error.message);
-		
 		//Check the current time when an error appears
 		var currentTime = 1 * new Date(),
 			stackClone = this.stack.slice(0);

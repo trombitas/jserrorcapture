@@ -1,13 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 3.5.8.2
+-- version 4.2.7.1
 -- http://www.phpmyadmin.net
 --
--- Host: sql303.byethost18.com
--- Generation Time: Feb 27, 2015 at 09:23 AM
--- Server version: 5.6.22-71.0
--- PHP Version: 5.3.3
+-- Host: 127.0.0.1
+-- Generation Time: Mar 01, 2015 at 03:29 AM
+-- Server version: 5.6.17
+-- PHP Version: 5.5.15
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 
@@ -17,20 +17,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `b18_15917402_jserrorlogger`
+-- Database: `jserrorlogger`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `browser_orientations`
---
-
-CREATE TABLE IF NOT EXISTS `browser_orientations` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `ORIENTATION_TYPE` varchar(30) NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -39,11 +27,21 @@ CREATE TABLE IF NOT EXISTS `browser_orientations` (
 --
 
 CREATE TABLE IF NOT EXISTS `browsers` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `BROWSER_NAME` varchar(30) NOT NULL,
-  `BROWSER_VERSION` varchar(10) NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+`ID` int(11) NOT NULL,
+  `BROWSER_NAME` varchar(100) NOT NULL,
+  `BROWSER_VERSION` varchar(100) NOT NULL
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=61 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `browser_orientations`
+--
+
+CREATE TABLE IF NOT EXISTS `browser_orientations` (
+`ID` int(11) NOT NULL,
+  `ORIENTATION_TYPE` varchar(30) NOT NULL
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=25 ;
 
 -- --------------------------------------------------------
 
@@ -52,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `browsers` (
 --
 
 CREATE TABLE IF NOT EXISTS `errors` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
+`ID` int(11) NOT NULL,
   `CLIENT_ID` int(11) NOT NULL,
   `BROWSER_ID` int(11) NOT NULL,
   `OS_ID` int(11) NOT NULL,
@@ -63,8 +61,12 @@ CREATE TABLE IF NOT EXISTS `errors` (
   `FILE_NAME` varchar(250) NOT NULL,
   `LINE_NUMBER` smallint(6) NOT NULL,
   `COL_NUMBER` smallint(6) NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+  `displayed` tinyint(1) NOT NULL DEFAULT '0',
+  `TIME` varchar(20) NOT NULL,
+  `LANG` varchar(10) DEFAULT NULL,
+  `formatJson` text,
+  `formatXml` text
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=579 ;
 
 -- --------------------------------------------------------
 
@@ -73,23 +75,21 @@ CREATE TABLE IF NOT EXISTS `errors` (
 --
 
 CREATE TABLE IF NOT EXISTS `error_types` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `ERROR_TYPE_NAME` varchar(30) NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+`ID` int(11) NOT NULL,
+  `ERROR_TYPE_NAME` varchar(30) NOT NULL
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=134 ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `OS`
+-- Table structure for table `os`
 --
 
-CREATE TABLE IF NOT EXISTS `OS` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `os` (
+`ID` int(11) NOT NULL,
   `OS_NAME` varchar(30) NOT NULL,
-  `OS_VERSION` varchar(10) NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+  `OS_VERSION` varchar(10) NOT NULL
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=39 ;
 
 -- --------------------------------------------------------
 
@@ -98,12 +98,85 @@ CREATE TABLE IF NOT EXISTS `OS` (
 --
 
 CREATE TABLE IF NOT EXISTS `resolutions` (
-  `ID` int(11) NOT NULL DEFAULT '0',
+`ID` int(11) NOT NULL,
   `WIDTH` smallint(6) NOT NULL,
-  `HEIGHT` smallint(6) NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `HEIGHT` smallint(6) NOT NULL
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=46 ;
 
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `browsers`
+--
+ALTER TABLE `browsers`
+ ADD PRIMARY KEY (`ID`);
+
+--
+-- Indexes for table `browser_orientations`
+--
+ALTER TABLE `browser_orientations`
+ ADD PRIMARY KEY (`ID`);
+
+--
+-- Indexes for table `errors`
+--
+ALTER TABLE `errors`
+ ADD PRIMARY KEY (`ID`);
+
+--
+-- Indexes for table `error_types`
+--
+ALTER TABLE `error_types`
+ ADD PRIMARY KEY (`ID`);
+
+--
+-- Indexes for table `os`
+--
+ALTER TABLE `os`
+ ADD PRIMARY KEY (`ID`);
+
+--
+-- Indexes for table `resolutions`
+--
+ALTER TABLE `resolutions`
+ ADD PRIMARY KEY (`ID`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `browsers`
+--
+ALTER TABLE `browsers`
+MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=61;
+--
+-- AUTO_INCREMENT for table `browser_orientations`
+--
+ALTER TABLE `browser_orientations`
+MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=25;
+--
+-- AUTO_INCREMENT for table `errors`
+--
+ALTER TABLE `errors`
+MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=579;
+--
+-- AUTO_INCREMENT for table `error_types`
+--
+ALTER TABLE `error_types`
+MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=134;
+--
+-- AUTO_INCREMENT for table `os`
+--
+ALTER TABLE `os`
+MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=39;
+--
+-- AUTO_INCREMENT for table `resolutions`
+--
+ALTER TABLE `resolutions`
+MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=46;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
