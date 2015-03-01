@@ -181,7 +181,7 @@ angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
     $scope.$watch('config.ajax.enabled', function(enabled) {
     });
 
-    $scope.$watch(function() {
+    $scope.$watch('config', function() {
         $scope.showCode = true;
         $scope.generatedConfig = angular.toJson($scope.config, true);
     });
@@ -284,6 +284,21 @@ angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
     //
     //console.log('send(' + r + ')');
 
+
+    $scope.saveConfig = function() {
+        function download(filename, text) {
+            var pom = document.createElement('a');
+            pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            pom.setAttribute('download', filename);
+            pom.click();
+        }
+
+        download('js-error-capture-config.json', angular.toJson($scope.config, true));
+    };
+
+    $scope.restoreConfig = function() {
+        $scope.config = angular.fromJson($scope.generatedConfig);
+    };
 
 
     $scope.generateError = function() {
