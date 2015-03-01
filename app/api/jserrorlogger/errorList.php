@@ -20,7 +20,7 @@
 							 left join resolutions as R on R.ID = E.RESOLUTION_ID
 							 left join error_types as E_T on E_T.ID = E.ERROR_TYPE_ID
 							 left join browser_orientations as B_O on B_O.ID = E.BROWSER_ID
-							 order by id asc") or die (mysql_error());
+							 order by id desc") or die (mysql_error());
 		
 		$json = array();
 		

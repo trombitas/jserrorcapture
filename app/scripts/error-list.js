@@ -2,6 +2,7 @@ $(document).ready(function () {
 	var firstCall = true;
 	var timeout = 1000;
 	var interval;
+	var closeTimeout;
 	var request = function() {
 		$.ajax({
 			'type': 'post',
@@ -10,21 +11,31 @@ $(document).ready(function () {
 			'success': function(data) {
 				firstCall = false;
 				populateTable(data);
+				clearTimeout(closeTimeout);
+				
+				$('#close-progress').stop().width('200px').animate({
+					width: '0'
+				}, 3000);
+				
+				$("#close-progress").parent().show();
+				closeTimeout = setTimeout(function() {
+					$("#format").modal('hide');
+				}, 3000);
 			}
 		});
 	}
 	var populateTable = function(data) {
 		$('#errors tr').remove();
-		var lastRow;
+		var firstRow;
 		data.forEach(function(row){
 			var htmlRow = createRow(row);
-			lastRow = row;
+			firstRow = firstRow || row;
 			$('#errors').append(htmlRow);
 			$('#errors tr:last').dblclick(function() {
 				displayWindow(row);
 			});
 		});
-		displayWindow(lastRow);
+		displayWindow(firstRow);
 	}
 	var displayWindow = function(row){
 		$("#formatText").html(row.format);
