@@ -28,7 +28,7 @@ window.jsErrorCapture = (function(window) {
 		
 		//Capture HTTP erroneous calls
 		if (this.options.ajax) {
-			this.captureHTTPErrors();
+			//this.captureHTTPErrors();
 		}	
 	};
 	

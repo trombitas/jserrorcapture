@@ -7,9 +7,9 @@
 	w[n] = o;
 }(window, document, 'script', 'jsErrorCaptureObject', {
 	sendOptions: {
-		url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php',
-		method: "post",
-		format: "json"
+		url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
+		method: "image",
+		format: "url"
 	}
 }));
 
