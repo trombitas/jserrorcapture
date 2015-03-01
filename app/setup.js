@@ -3,7 +3,8 @@
 angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
 
     $scope.config = {
-        url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php',
+        script: 'scripts/jserrorcapture.js',
+        url: 'http://jserrorcapture.byethost18.com/api/jserrorlogger/request.php',
         method: 'post',
         format: 'json',
         ajax: {
@@ -185,7 +186,7 @@ angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
         $scope.generatedConfig = angular.toJson($scope.config, true);
     });
 
-    $scope.generate = function() {
+    $scope.generate = function(live) {
         var c = angular.copy($scope.config);
         var config = {
             sendingOptions: {
@@ -205,10 +206,13 @@ angular.module('app', ['ui.bootstrap']).controller('App', function($scope) {
             });
         }
         var configJson = angular.toJson(config);
-        //{url:"http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php",method:"image",format:"string"}
-        //$scope.generatedCode = '(function(d,a,c,e,f){var b=a.createElement(c);b.type="text/javascript";b.async=!0;b.src="http://jserrorcapture.byethost18.com/jserrorcapture.js";a=a.getElementsByTagName(c)[0];a.parentNode.insertBefore(b,a);d[e]=f})(window,document,"script","jsErrorCaptureObject",{sendOptions:'+configJson+'});';
-        $scope.generatedCode = '<script>jsErrorCaptureObject=' + configJson + '</script>\n';
-        $scope.generatedCode += '<script type="text/javascript" src="http://jserrorcapture.byethost18.com/jserrorcapture.js"></script>\n';
+        if(live) {
+            $scope.generatedCode = '(function(d,a,c,e,f){var b=a.createElement(c);b.type="text/javascript";b.async=!0;b.src="http://jserrorcapture.byethost18.com/jserrorcapture.js";a=a.getElementsByTagName(c)[0];a.parentNode.insertBefore(b,a);d[e]=f})(window,document,"script","jsErrorCaptureObject",'+configJson+');';
+        } else {
+            //{url:"http://jserrorcapture.byethost18.com/api/jserrorlogger/errorPhp.php",method:"image",format:"string"}
+            $scope.generatedCode = '<script>\njsErrorCaptureObject=' + configJson + '\n</script>\n\n';
+            $scope.generatedCode += '<script type="text/javascript" src="' + c.script + '"></script>\n';
+        }
     };
 
     $scope.xgenerate = function() {
