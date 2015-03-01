@@ -37,10 +37,10 @@
 		
 		<div class="container">
 
-			<div class="page-header" id="banner">
+			<div class="page-header" style="border-width:0" id="banner">
 				<div class="row">
 					<div class="col-lg-6">
-						<h1 style="margin:0"><img src='assets/logo.gif' /></h1>
+						<h1 style="margin:0"><img src='assets/logo.gif' /><small style="position:absolute;bottom:0;left:280px;font-size:20px">You try, we catch<sup>TM</sup></small></h1>
 					</div>
 					<div class="col-lg-6">
 						<h2 style="padding-top:16px;width:100%;text-align:right">Humble error generation tool</h2>
@@ -56,23 +56,49 @@
 						</div>
 						<div class="panel-body">
 							<div class="form-group">
+								<div class="checkbox">
+									<label>
+									  <input type="checkbox"> Typerror
+									</label>
+								</div>
+								<div class="checkbox">
+									<label>
+									  <input type="checkbox"> SyntaxError
+									</label>
+								</div>
+								<div class="checkbox">
+									<label>
+									  <input type="checkbox"> ReferenceError
+									</label>
+								</div>
+								<div class="checkbox">
+									<label>
+									  <input type="checkbox"> RangeError
+									</label>
+								</div>
+								<div class="checkbox">
+									<label>
+									  <input type="checkbox"> URIError
+									</label>
+								</div>
+								<div class="checkbox">
+									<label>
+									  <input type="checkbox"> EvalError
+									</label>
+								</div>
+							</div>
+							<br >
+							<div class="form-group">
 								<label class="control-label" for="inputDefault">Number of errors</label>
 								<input class="form-control" id="inputDefault" type="text">
 							</div>
 							<div class="form-group">
-								<label class="control-label" for="inputDefault">Interval (seconds)</label>
+								<label class="control-label" for="inputDefault">Interval (milliseconds)</label>
 								<input class="form-control" id="inputDefault" type="text"> 
 							</div>
 							<button onclick="pickError()" class="btn btn-warning pull-right">Start</button>
 						</div>
 					</div>
-					<br />
-					<h2>
-						<p>Javascript error types</p>
-						<ul>
-							<li>Syntax error</li>
-						</ul>
-					</h2>
 				</div>
 				
 				<div class="col-lg-6">
